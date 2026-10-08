@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Row Boat River Crossing — Code Architecture & Summary</title>
+<style>
+:root{--bg:#0b1329;--card:#111d38;--acc:#38bdf8;--text:#e2e8f0;--mut:#94a3b8;--bd:rgba(255,255,255,.1);--ok:#34d399;--warn:#fbbf24;--danger:#f87171}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% 0,#152449,#080d1a);color:var(--text);font:16px/1.6 system-ui,Segoe UI,sans-serif;padding:28px 18px 80px}
+.c{max-width:1100px;margin:0 auto}
+h1{font-size:2.2rem;margin:0 0 4px;background:linear-gradient(135deg,#7dd3fc,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h2{margin:36px 0 10px;color:#fff;border-bottom:1px solid var(--bd);padding-bottom:6px}
+.sub{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{border-bottom:1px solid var(--bd);padding:7px 8px;text-align:left;vertical-align:top}
+th{color:var(--acc)}
+code{background:#090f1f;border-radius:6px;padding:1px 6px;color:#fbbf24;font-size:.88em}
+.ln{font-family:ui-monospace,Consolas,monospace;color:var(--acc);white-space:nowrap}
+a{color:var(--acc)}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch;justify-content:center}
+.box{background:#18274a;border:1px solid rgba(56,189,248,.35);border-radius:12px;padding:10px 14px;min-width:150px;text-align:center}
+.box small{display:block;color:var(--mut)}
+.arr{align-self:center;font-size:1.6rem;color:var(--acc)}
+.core{border-color:var(--ok);box-shadow:0 0 0 2px rgba(52,211,153,.2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>🛶 Row Boat River Crossing — Code Summary</h1>
+<p class="sub">Entry: <code>index.html</code> (187 lines: modular markup + external stylesheets and scripts). Architecture: separated into <code>scenario.json</code>, <code>css/style.css</code>, <code>js/scenarios.js</code>, and <code>js/app.js</code>. Companion: <a href="schematic.md">schematic.md</a>.</p>
+
+<h2>1. Modular Architecture at a Glance</h2>
+<div class="card">
+<div class="flow">
+ <div class="box"><b>scenario.json</b><small>Scenarios, capacities, characters &amp; conflict rules</small></div><div class="arr">→</div>
+ <div class="box"><b>js/scenarios.js</b><small>JSON fetch + universal conflict evaluator</small></div><div class="arr">→</div>
+ <div class="box core"><b>js/app.js</b><small>Board state, boat rowing, drag/drop, animations</small></div><div class="arr">→</div>
+ <div class="box"><b>css/style.css</b><small>iPad styling, vertical river, wrap-row flex</small></div>
+</div>
+</div>
+
+<h2>2. File Map &amp; Table of Contents</h2>
+<div class="card"><table>
+<tr><th>File (lines)</th><th>Section / Component</th><th>Description</th></tr>
+<tr><td class="ln">index.html (187)</td><td>Main Application Shell</td><td>Top scenario navigation, play area with vertical river stage (Left Bank, Water, Right Bank), status banner with Try Again button, action controls, reference panels with Move History timeline, and Custom Scenario Builder.</td></tr>
+<tr><td class="ln">scenario.json (108)</td><td>Scenario Data &amp; Template</td><td>JSON schema and comment guide with <code>_template_example</code> for humans/AI to add future scenarios. Configures <code>mwgc</code>, <code>3m3d</code>, and <code>custom</code> with characters, rowers, boat capacities, and structured conflict rules.</td></tr>
+<tr><td class="ln">css/style.css (773)</td><td>Styles &amp; Visual Design</td><td>Theme tokens, iPad landscape/portrait layouts, vertical river gradient &amp; flow animations, boat positioning, character chips with abbreviation badges, eating lunge animations, red slash damage keyframes, GAME OVER tags, and responsive <code>.wrap-row</code> controls.</td></tr>
+<tr><td class="ln">js/scenarios.js (124)</td><td>Scenario Engine &amp; Rules</td><td>Loads <code>scenario.json</code> asynchronously (with embedded offline defaults), parses rules, and provides <code>evaluateBankConflict(bankItems, scn)</code> to test direct predator/victim/protector rules or owner-absence conflicts.</td></tr>
+<tr><td class="ln">js/app.js (495)</td><td>Core Game Logic &amp; UI</td><td>
+  • <b>State Management</b> (1–12): Board position, banks, boat passengers, turns, history snapshots.<br>
+  • <b>Initialization &amp; Rendering</b> (15–140): <code>initGame</code>, <code>renderScenarioButtons</code>, <code>renderBoard</code>, <code>createCharElement</code>.<br>
+  • <b>Interactions &amp; Rowing</b> (142–245): Tap/drag to board/unload, <code>rowBoat</code>, move execution, left-behind bank validation.<br>
+  • <b>Animations &amp; Game Over</b> (247–290): <code>triggerConflictAnimation</code> (munch lunge + red slash), <code>showGameOver</code> with Try Again reset.<br>
+  • <b>History &amp; Undo</b> (292–355): Snapshot rollback, visual timeline cards with abbreviations and crossing direction.<br>
+  • <b>Custom Builder</b> (385–480): Responsive inputs, dynamic character chips, rule creators, and game launcher.
+</td></tr>
+</table></div>
+
+<h2>3. Key Variables &amp; Extension Guide</h2>
+<div class="card"><table>
+<tr><th>Variable / File</th><th>Default / Type</th><th>What it Does &amp; How to Tweak</th></tr>
+<tr><td><code>scenario.json</code></td><td>JSON Object</td><td>To add a new scenario, duplicate <code>_template_example</code> in <code>scenario.json</code> and set <code>title</code>, <code>capacity</code>, <code>characters</code>, and <code>conflicts</code>. The app automatically creates a top tab button for it.</td></tr>
+<tr><td><code>scn.conflicts</code></td><td>Array of Rules</td><td>Supports direct rules (<code>predatorId</code>, <code>victimId</code>, <code>protectorId</code>) and role-based owner rules (<code>ownerAbsent: true</code>).</td></tr>
+<tr><td><code>.wrap-row</code></td><td>Flexbox with <code>wrap</code></td><td>Ensures form fields and Add buttons in the custom builder wrap smoothly on iPads and narrower sidebars without being cut off.</td></tr>
+<tr><td><code>state.history</code></td><td>Snapshot Array</td><td>Full deep copies of prior states enabling infinite undo capability.</td></tr>
+</table></div>
+</div>
+</body>
+</html>

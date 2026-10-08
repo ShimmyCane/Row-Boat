@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Row Boat River Crossing</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Top Navigation & Scenario Tabs -->
+  <header class="top-header">
+    <h1 class="app-title">🛶 River Cross</h1>
+    <div class="scenario-pills" id="scenarioTabs">
+      <!-- Populated dynamically from scenario.json -->
+      <button class="scenario-btn active" data-scenario="mwgc">1. Wolf, Goat & Cabbage</button>
+      <button class="scenario-btn" data-scenario="3m3d">2. 3 Men & 3 Dogs</button>
+      <button class="scenario-btn" data-scenario="custom">3. Custom Setup</button>
+    </div>
+  </header>
+
+  <!-- Main 2-Column Responsive Workspace -->
+  <main class="workspace">
+    <!-- Left Column: Play Area (Fixed river, boat, drag items) -->
+    <section class="play-column">
+      <div class="river-stage" id="riverStage">
+        <!-- West / Left Bank (Starting Shore) -->
+        <div class="river-bank" id="bankLeft" data-bank="left">
+          <div class="bank-label">
+            <span>🌿 Left Bank</span>
+            <span id="leftCount">0</span>
+          </div>
+          <div class="bank-slots" id="slotsLeft"></div>
+        </div>
+
+        <!-- Vertical River Flow in Middle -->
+        <div class="river-water" id="waterArea">
+          <div class="water-stream"></div>
+          
+          <!-- Boat crossing between Left & Right banks -->
+          <div class="boat-container left-bank" id="boat">
+            <div class="boat-top-row">
+              <span class="boat-label">Row Boat</span>
+              <span id="capacityLabel" style="font-size:0.65rem;font-weight:800;color:#7c2d12">Cap: 2</span>
+            </div>
+            <div class="boat-seats" id="boatSeats"></div>
+          </div>
+        </div>
+
+        <!-- East / Right Bank (Destination Shore) -->
+        <div class="river-bank" id="bankRight" data-bank="right">
+          <div class="bank-label">
+            <span>🏝️ Right Bank</span>
+            <span id="rightCount">0</span>
+          </div>
+          <div class="bank-slots" id="slotsRight"></div>
+        </div>
+      </div>
+
+      <!-- Controls & Feedback Area -->
+      <div class="play-controls">
+        <div class="status-banner" id="statusBanner">
+          <div id="statusTextWrapper" style="display:flex;align-items:center;flex:1;overflow:hidden">
+            <span id="statusText">Tap or drag characters into the boat, then Row across!</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="try-again-btn" id="btnTryAgain" style="display:none" onclick="resetCurrentGame()">
+              🔄 Try Again
+            </button>
+            <span class="stat-pill" id="turnDisplay">Turns: 0</span>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-big" id="btnRow" disabled>
+            🛶 Row Across
+          </button>
+          <button class="btn-util" id="btnUndo">
+            ↩ Undo
+          </button>
+          <button class="btn-util" id="btnReset">
+            🔄 Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Stackable Reference Panels & Customizer -->
+    <section class="right-column">
+      <!-- Visual Move History Timeline Panel -->
+      <div class="panel-card">
+        <div class="panel-header" onclick="togglePanel('historyPanel', this)">
+          <h3>📋 Move History</h3>
+          <span class="panel-toggle">−</span>
+        </div>
+        <div class="panel-body" id="historyPanel">
+          <div class="history-timeline" id="historyList">
+            <em style="color:#94a3b8">No moves taken yet.</em>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scenario Rules Panel -->
+      <div class="panel-card">
+        <div class="panel-header" onclick="togglePanel('rulesPanel', this)">
+          <h3>📜 Rules & Constraints</h3>
+          <span class="panel-toggle">−</span>
+        </div>
+        <div class="panel-body" id="rulesPanel">
+          <div id="ruleList"></div>
+          <div class="hint-pill" id="ruleHint">
+            💡 <strong>Rower Rule:</strong> A human rower must be inside the boat!
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Scenario Builder Panel (Visible for Custom scenario) -->
+      <div class="panel-card" id="customBuilderCard" style="display:none">
+        <div class="panel-header" onclick="togglePanel('customBody', this)">
+          <h3>⚙️ Custom Rules Builder</h3>
+          <span class="panel-toggle">−</span>
+        </div>
+        <div class="panel-body" id="customBody">
+          <div class="form-group">
+            <label>Boat Capacity:</label>
+            <input type="number" id="customCapInput" min="1" max="5" value="2" style="width:70px;padding:5px;border-radius:8px;border:2px solid #cbd5e1;font-weight:700">
+          </div>
+          
+          <div class="form-group">
+            <label>Add Character:</label>
+            <div class="wrap-row">
+              <input type="text" id="charNameInput" placeholder="Name" style="flex:1 1 85px">
+              <input type="text" id="charAbbrInput" placeholder="Abbr" style="width:50px;text-align:center;text-transform:uppercase">
+              <select id="charTypeSelect" style="flex:1 1 95px">
+                <option value="human">Human</option>
+                <option value="animal">Animal</option>
+                <option value="object">Object</option>
+              </select>
+              <input type="text" id="charEmojiInput" placeholder="Emoji" style="width:45px;text-align:center">
+              <button class="btn-util" onclick="addCustomChar()" style="flex:0 0 auto">Add</button>
+            </div>
+          </div>
+          
+          <label style="font-size:0.75rem;font-weight:800;color:#475569">Current Characters:</label>
+          <div class="custom-char-list" id="customChips"></div>
+
+          <div class="form-group" style="margin-top:8px">
+            <label>Add Danger / Eating Rule:</label>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div class="wrap-row" style="font-size:0.75rem">
+                <select id="rulePredator" style="flex:1 1 100px"></select>
+                <span style="font-weight:700">harms</span>
+                <select id="rulePrey" style="flex:1 1 100px"></select>
+              </div>
+              <div class="wrap-row" style="font-size:0.75rem">
+                <span style="font-weight:700">without</span>
+                <select id="ruleProtector" style="flex:1 1 110px"></select>
+                <button class="btn-util" onclick="addCustomRule()" style="flex:0 0 auto">Add Rule</button>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn-big" onclick="applyCustomScenario()" style="width:100%;margin-top:10px;padding:8px;font-size:0.9rem">
+            🚀 Launch Custom Game
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Settings Float Button -->
+  <button class="gear-float" id="btnGear" title="Settings">⚙️</button>
+
+  <!-- Settings Modal Dialog -->
+  <div class="settings-overlay hidden" id="settingsModal">
+    <div class="settings-modal">
+      <div class="settings-header">
+        <h2>Game Settings</h2>
+        <button class="btn-util" onclick="toggleSettings(false)">✖</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;font-size:0.85rem">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="chkAutoCheck" checked>
+          <span>Real-time hazard warnings</span>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="chkSoundEffects" checked>
+          <span>Enable sound effects / vibrations</span>
+        </label>
+        <button class="btn-big" onclick="toggleSettings(false)" style="margin-top:8px">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/scenarios.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
