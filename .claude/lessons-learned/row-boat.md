@@ -76,3 +76,31 @@ Covers V1 and V2, which were deleted when V3 was built. Git history keeps the ol
   back to 1280×720.
 - Known limit: on iPhone landscape (short screen), a bank with six characters scrolls inside
   itself. The stage is about 160px tall there.
+
+## Session lessons: consolidation and root move (2026-10-23 to 2026-10-25)
+
+Process lessons from building V3 and moving it to the repo root. These are about how the work
+was done, not about the game.
+
+- **Check a screenshot's size before trusting what it shows.** The test browser ignored a
+  viewport I passed at the wrong level, so every "phone" screenshot was really 1280×720 and
+  looked like a desktop. Confirm the viewport with `innerWidth` or a measured layout first.
+- **Measure layout, don't just look at images.** Bounding-box checks (`getBoundingClientRect`,
+  `scrollHeight` against `innerHeight`) caught the real layout facts. The images were only
+  confirmation.
+- **Check every file after a multi-file `sed` or chain of `&&`.** One command in the chain
+  failed on a `#` delimiter and the rest of the chain did not run. Re-grep for the old path
+  after any rename or move (`grep -rn "V3/" --exclude-dir=.git .`).
+- **Keep the entry point obvious.** After the old root copies were removed, the repo root held
+  only `README.md`, and the app opened that file, which looked like the game had broken. A
+  repo whose main page is a game should keep `index.html` at the root.
+- **Draft PRs must be marked ready before merging.** `merge_pull_request` refused a draft.
+  Pin the merge to the reviewed commit with `expectedHeadSha` so nothing unseen gets in.
+- **A repo with no CI shows empty check runs.** Empty `get_check_runs` results mean no checks
+  ran, not that they passed. Say so in the PR description and rely on the local tests.
+- **Test the data, not just the UI.** The solver found the V2 bridge puzzle could not be
+  solved, which browser clicks alone would not have shown. Run a solver for any rule-driven
+  puzzle before shipping.
+- **Subscription events are not CI results.** The PR notifications were subscription and
+  merge events. Read the check runs and review threads directly rather than trusting the
+  event text.
