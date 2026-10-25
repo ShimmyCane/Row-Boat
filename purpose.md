@@ -5,7 +5,7 @@ Context
 A river must be crossed in a row boat that carries only so many people, animals or things.
 How many trips will it take, and what does each crossing look like?
 
-Goals for V3
+Goals for this version
 - Fit on iPhone and iPad screens, in portrait and landscape, without scrolling the page.
 - Make each crossing easy to see: the boat moves across the river and rows.
 - Show each landing: passengers step off one at a time, and the last one ashore is highlighted.

@@ -4,7 +4,7 @@ Purpose:
 Problems are fun, but visualizing them could be more interesting
 
 Use:
-V3/index.html
+index.html
 
 Context:
 Using AI to create this
