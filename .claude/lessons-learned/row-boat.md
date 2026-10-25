@@ -20,7 +20,7 @@ Covers V1 and V2, which were deleted when V3 was built. Git history keeps the ol
 2. **Scenario data was stored twice.** `scenario.json` and a copy embedded in `scenarios.js`
    were kept in sync by hand, and `fetch('scenario.json')` fails when the page is opened from
    `file://`, so the embedded copy was the one actually used. V3 has one data file,
-   `V3/js/scenarios.js`.
+   `js/scenarios.js`.
 3. **Dead settings.** The settings modal had "Real-time hazard warnings" and "Enable sound
    effects / vibrations" checkboxes that did nothing. V3 removes the modal. Build a control only
    when it does something.
@@ -69,15 +69,10 @@ Covers V1 and V2, which were deleted when V3 was built. Git history keeps the ol
 
 ## How to test changes
 
-- `node V3/tests/solve.js`: every scenario must be solvable. Run it after editing scenario data.
+- `node tests/solve.js`: every scenario must be solvable. Run it after editing scenario data.
 - Browser checks with Playwright: play a known solution on phone and iPad sizes and check for
   page errors and whole-page scrolling. A Playwright `newContext` needs
   `viewport: { width, height }`. Top-level `width` and `height` are ignored and the page falls
   back to 1280×720.
 - Known limit: on iPhone landscape (short screen), a bank with six characters scrolls inside
   itself. The stage is about 160px tall there.
-
-## Open questions for the user
-
-- Should the old `index.html` at the repo root be kept as a pointer? V3 is the only copy now.
-- Deleted from the working tree but not yet committed. Commit when ready.

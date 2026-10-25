@@ -16,7 +16,7 @@
  *   conflicts      [{ ruleType, ...fields, message }] checked on the bank the boat just left
  *                  ruleType: predator_prey | owner_absent | majority | jealous_couples | chief_required
  *
- * After editing, run: node V3/tests/solve.js
+ * After editing, run: node tests/solve.js
  */
 
 const SCENARIOS = {

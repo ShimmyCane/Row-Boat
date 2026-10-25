@@ -1,5 +1,5 @@
 // Checks that every scenario can be solved with the same rules the game uses.
-// Usage: node V3/tests/solve.js
+// Usage: node tests/solve.js
 const { SCENARIOS, crossingProblem, crossingCost, evaluateBankConflict } = require("../js/scenarios.js");
 
 // Cheapest sequence of trips from "everyone left, boat left" to "everyone right".
